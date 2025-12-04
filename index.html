@@ -1,450 +1,351 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Flipbook Template – Rounded Corner Curl</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8" />
+  <title>FlipHTML Studio — Create Stunning Digital Flipbooks</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Turn static PDFs into immersive, mobile-friendly flipbooks in minutes." />
 
-<style>
-  :root {
-    --bg1: #fefaf3;
-    --bg2: #f4f1ec;
-    --bg3: #e8ded3;
-    --page-bg: #ffffff;
-    --text: #1f2228;
-    --muted: #6e727b;
-    --shadow-page: 0 18px 40px rgba(0, 0, 0, 0.2);
-    --radius-page: 18px;
-  }
-
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-
-  body {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: radial-gradient(circle at top left, var(--bg1) 0, var(--bg2) 50%, var(--bg3) 100%);
-    color: var(--text);
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-  }
-
-  .book-shell {
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .book {
-    position: relative;
-    width: 900px;   /* 2 x 450 */
-    height: 600px;
-    display: flex;
-    perspective: 2000px;
-  }
-
-  .page {
-    width: 50%;
-    height: 100%;
-    background: var(--page-bg);
-    border-radius: var(--radius-page);
-    box-shadow: var(--shadow-page);
-    padding: 2rem 2.2rem;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .page h2 {
-    font-size: 0.83rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 0.4rem;
-  }
-
-  .page h1 {
-    font-size: 1.3rem;
-    margin-bottom: 0.8rem;
-  }
-
-  .page p {
-    font-size: 0.96rem;
-    line-height: 1.7;
-    margin-bottom: 0.5rem;
-  }
-
-  .num {
-    position: absolute;
-    bottom: 18px;
-    right: 20px;
-    font-size: 0.8rem;
-    color: var(--muted);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  /* Rounded corner shading on static pages */
-  .page::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: radial-gradient(circle at bottom right,
-                rgba(0,0,0,0.16) 0,
-                transparent 55%);
-    opacity: 0.12;
-  }
-
-  /* Click zones */
-  .hot {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 22%;
-    cursor: pointer;
-    z-index: 5;
-  }
-  #hot-left { left: 0; }
-  #hot-right { right: 0; }
-
-  .hint {
-    position: absolute;
-    bottom: 10px;
-    font-size: 0.8rem;
-    color: var(--muted);
-    user-select: none;
-    pointer-events: none;
-  }
-  .hint-left { left: 15px; }
-  .hint-right { right: 15px; }
-
-  /* Flip overlay – rounded, corner curl */
-  .flip-overlay {
-    position: absolute;
-    top: 0;
-    height: 100%;
-    width: 50%;
-    background: var(--page-bg);
-    border-radius: var(--radius-page);
-    box-shadow: var(--shadow-page);
-    padding: 2rem 2.2rem;
-    overflow: hidden;
-    transform-style: preserve-3d;
-    backface-visibility: hidden;
-    pointer-events: none;
-    z-index: 20;
-  }
-
-  .flip-overlay::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background:
-      radial-gradient(circle at bottom right,
-        rgba(0,0,0,0.25) 0,
-        transparent 60%);
-    opacity: 0.25;
-    mix-blend-mode: multiply;
-  }
-
-  /* Forward (right-side) flip */
-  .flip-overlay-right {
-    right: 0;
-    transform-origin: bottom right;
-    animation: cornerFlipForward 0.8s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
-  }
-
-  /* Backward (left-side) flip */
-  .flip-overlay-left {
-    left: 0;
-    transform-origin: bottom left;
-    animation: cornerFlipBackward 0.8s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
-  }
-
-  @keyframes cornerFlipForward {
-    0% {
-      transform: rotateZ(0deg) rotateY(0deg) translate(0,0) scale(1);
-      box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+  <style>
+    :root {
+      --bg: #f4f1ec;
+      --bg-soft: #faf7f2;
+      --page: #ffffff;
+      --text: #1f2228;
+      --muted: #6e727b;
+      --accent: #c78f46;
+      --accent-soft: rgba(199, 143, 70, 0.12);
+      --border-soft: #dfd6c6;
+      --radius-xl: 20px;
+      --shadow-soft: 0 20px 40px rgba(0,0,0,0.08);
+      --shadow-card: 0 10px 30px rgba(0,0,0,0.06);
+      --max-width: 1060px;
     }
-    40% {
-      transform: rotateZ(3deg) rotateY(-85deg) translate(-20px,-6px) scale(1.03);
-      box-shadow: 0 26px 60px rgba(0,0,0,0.45);
-    }
-    100% {
-      transform: rotateZ(8deg) rotateY(-180deg) translate(-60px,-16px) scale(0.9);
-      box-shadow: 0 0 0 rgba(0,0,0,0);
-      opacity: 0;
-    }
-  }
 
-  @keyframes cornerFlipBackward {
-    0% {
-      transform: rotateZ(0deg) rotateY(0deg) translate(0,0) scale(1);
-      box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
-    40% {
-      transform: rotateZ(-3deg) rotateY(85deg) translate(20px,-6px) scale(1.03);
-      box-shadow: 0 26px 60px rgba(0,0,0,0.45);
-    }
-    100% {
-      transform: rotateZ(-8deg) rotateY(180deg) translate(60px,-16px) scale(0.9);
-      box-shadow: 0 0 0 rgba(0,0,0,0);
-      opacity: 0;
-    }
-  }
 
-  /* Scale down on smaller screens (simple but effective) */
-  @media (max-width: 1000px) {
-    .book { transform: scale(0.85); }
-  }
-  @media (max-width: 850px) {
-    .book { transform: scale(0.7); }
-  }
-  @media (max-width: 700px) {
-    .book { transform: scale(0.6); }
-  }
-  @media (max-width: 600px) {
-    .book { transform: scale(0.5); }
-  }
-</style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #fefaf3 0, #f4f1ec 46%, #ede6dc 100%);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    .shell {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    /* Header / Nav */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(12px);
+      background: rgba(244, 241, 236, 0.9);
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.9rem 0;
+      gap: 1.5rem;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.9rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .logo-mark {
+      width: 24px;
+      height: 24px;
+      border-radius: 8px;
+      background: radial-gradient(circle at 20% 10%, #ffd9a0 0, #c78f46 40%, #7a4a16 100%);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.4rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    /* Hero */
+    .hero {
+      padding: 3.5rem 0 3rem;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.1fr);
+      gap: 2.4rem;
+      align-items: center;
+    }
+
+    .hero-kicker {
+      font-size: 0.82rem;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.55rem;
+    }
+
+    .hero-title {
+      font-size: clamp(2rem, 4vw, 2.6rem);
+      line-height: 1.1;
+      margin-bottom: 0.8rem;
+    }
+
+    .hero-title span {
+      background: linear-gradient(120deg, #c78f46, #e7b86f);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 1rem;
+      color: var(--muted);
+      max-width: 30rem;
+      margin-bottom: 1.4rem;
+    }
+
+    .hero-cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.9rem;
+      align-items: center;
+      margin-bottom: 1.1rem;
+    }
+
+    .btn {
+      padding: 0.55rem 1.2rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-size: 0.88rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #c78f46, #e7b86f);
+      color: #fff;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+    }
+
+    .btn-outline {
+      background: rgba(255,255,255,0.8);
+      border-color: rgba(0,0,0,0.08);
+      color: var(--muted);
+    }
+
+    /* Demo Section */
+    section {
+      padding: 2.8rem 0;
+    }
+
+    .section-kicker {
+      font-size: 0.78rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 0.3rem;
+    }
+
+    .section-title {
+      font-size: 1.6rem;
+      text-align: center;
+      margin-bottom: 0.8rem;
+    }
+
+    .embed-shell {
+      margin-top: 2rem;
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.9fr);
+      gap: 1.7rem;
+      align-items: center;
+    }
+
+    .embed-card {
+      background: #fff;
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(0,0,0,0.04);
+      padding: 0;
+      overflow: hidden;
+      min-height: 300px;
+    }
+
+    .embed-note {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    /* CTA */
+    .cta {
+      padding: 2.5rem 0 3rem;
+    }
+
+    .cta-inner {
+      background: linear-gradient(120deg, #c78f46, #e7b86f);
+      border-radius: 24px;
+      padding: 1.8rem 2rem;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    footer {
+      padding: 1rem 0;
+      background: rgba(250,247,242,0.95);
+      color: var(--muted);
+      font-size: 0.8rem;
+      border-top: 1px solid rgba(0,0,0,0.06);
+    }
+  </style>
 </head>
+
 <body>
+<div class="shell">
 
-<div class="book-shell">
-  <div class="book" id="book">
-    <div class="page" id="left"></div>
-    <div class="page" id="right"></div>
+  <!-- HEADER -->
+  <header>
+    <div class="wrap">
+      <div class="nav">
+        <div class="nav-left">
+          <div class="logo-mark">F</div>
+          <span>FlipHTML Studio</span>
+        </div>
 
-    <div class="hot" id="hot-left"></div>
-    <div class="hot" id="hot-right"></div>
+        <nav class="nav-links">
+          <a href="#demo">Demo</a>
+        </nav>
 
-    <div class="hint hint-left">◀ Click / Arrow Left</div>
-    <div class="hint hint-right">Click / Arrow Right ▶</div>
-  </div>
+        <button class="btn btn-primary" onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'})">
+          View Book
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+
+      <div>
+        <div class="hero-kicker">Create Stunning Digital Flipbooks</div>
+
+        <h1 class="hero-title">
+          Turn static PDFs into <span>interactive flipbooks</span>.
+        </h1>
+
+        <p class="hero-subtitle">
+          Upload, customize, and share beautiful flipbooks that feel like a real book, optimized for all devices.
+        </p>
+
+        <div class="hero-cta-row">
+          <button class="btn btn-primary" onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'})">
+            View Your Flipbook
+          </button>
+        </div>
+      </div>
+
+      <img src="https://dummyimage.com/600x400/f3e9dd/5d4c3c&text=Your+Book+Preview+Here" alt="Preview" style="border-radius:20px;box-shadow:var(--shadow-soft);" />
+
+    </div>
+  </section>
+
+  <!-- DEMO SECTION -->
+  <section id="demo">
+    <div class="wrap">
+
+      <div class="section-kicker">Live Demo</div>
+      <h2 class="section-title">Your FlipHTML5 Book</h2>
+
+      <div class="embed-shell">
+
+        <!-- YOUR EMBEDDED BOOK -->
+        <div class="embed-card">
+          <div style="position:relative;padding-top:max(60%,324px);width:100%;height:0;">
+            <iframe
+              style="position:absolute;border:none;width:100%;height:100%;left:0;top:0;"
+              src="https://online.fliphtml5.com/hudix/iuzw/"
+              seamless="seamless"
+              scrolling="no"
+              frameborder="0"
+              allowtransparency="true"
+              allowfullscreen="true">
+            </iframe>
+          </div>
+        </div>
+
+        <div class="embed-note">
+          This flipbook is fully responsive and will scale automatically to fit the layout.  
+          You’re free to swap the embed code anytime.
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <div class="wrap">
+      <div class="cta-inner">
+        <h2>Ready to publish more books?</h2>
+        <p>Create as many flipbooks as you want and embed them anywhere.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="wrap">
+      © <span id="year"></span> FlipHTML Studio
+    </div>
+  </footer>
 </div>
 
 <script>
-  // Page data – replace with your real content later
-  const pages = [
-    {
-      kicker: "10X City",
-      title: "Flipbook Template · Page 1",
-      body: [
-        "You should see this as page 1 on the left and page 2 on the right.",
-        "Click the right side (or press the right arrow key) to flip forward."
-      ]
-    },
-    {
-      kicker: "Intro",
-      title: "Page 2 · Right Side",
-      body: [
-        "This is page 2. The flip animation uses a rounded corner curl.",
-        "When you flip, you should see the new spread underneath the turning page."
-      ]
-    },
-    {
-      kicker: "Spread",
-      title: "Page 3 · Left",
-      body: [
-        "Now you should see page 3 on the left, page 4 on the right.",
-        "The corner turns from the bottom-right when you go forward."
-      ]
-    },
-    {
-      kicker: "Spread",
-      title: "Page 4 · Right",
-      body: [
-        "Each flip reveals the next spread that is already rendered underneath."
-      ]
-    },
-    {
-      kicker: "Middle",
-      title: "Page 5",
-      body: [
-        "This is page 5. We’re just giving you a few test spreads.",
-        "Later, you can paste your own book content into the pages array."
-      ]
-    },
-    {
-      kicker: "Middle",
-      title: "Page 6",
-      body: [
-        "We can adjust speed, curve and shadow if you want the flip to feel lighter or heavier."
-      ]
-    },
-    {
-      kicker: "Sample",
-      title: "Page 7",
-      body: [
-        "Arrow keys also work: Left to go back, Right to go forward."
-      ]
-    },
-    {
-      kicker: "Sample",
-      title: "Page 8",
-      body: [
-        "On touchscreens, tapping left / right will still trigger the animation."
-      ]
-    },
-    {
-      kicker: "Closing",
-      title: "Page 9",
-      body: [
-        "This is the second-to-last test page."
-      ]
-    },
-    {
-      kicker: "Closing",
-      title: "Page 10",
-      body: [
-        "Once you’re happy with this behavior, we’ll wire in your real 10X City content."
-      ]
-    }
-  ];
-
-  let index = 0; // left page index (0,2,4,...)
-  let isAnimating = false;
-
-  const leftEl = document.getElementById("left");
-  const rightEl = document.getElementById("right");
-  const bookEl = document.getElementById("book");
-
-  function fillPage(el, data, num) {
-    el.innerHTML = "";
-    if (!data) return;
-
-    if (data.kicker) {
-      const h2 = document.createElement("h2");
-      h2.textContent = data.kicker;
-      el.appendChild(h2);
-    }
-
-    if (data.title) {
-      const h1 = document.createElement("h1");
-      h1.textContent = data.title;
-      el.appendChild(h1);
-    }
-
-    if (Array.isArray(data.body)) {
-      data.body.forEach(t => {
-        const p = document.createElement("p");
-        p.textContent = t;
-        el.appendChild(p);
-      });
-    }
-
-    const n = document.createElement("div");
-    n.className = "num";
-    n.textContent = num;
-    el.appendChild(n);
-  }
-
-  function renderSpread() {
-    if (index < 0) index = 0;
-    if (index >= pages.length) {
-      index = pages.length - (pages.length % 2 === 0 ? 2 : 1);
-    }
-    if (index % 2 !== 0) index -= 1;
-
-    fillPage(leftEl, pages[index], index + 1);
-    fillPage(rightEl, pages[index + 1], index + 2);
-  }
-
-  function createOverlay(side, oldHtml, onDone) {
-    const overlay = document.createElement("div");
-    overlay.classList.add("flip-overlay");
-    if (side === "right") {
-      overlay.classList.add("flip-overlay-right");
-    } else {
-      overlay.classList.add("flip-overlay-left");
-    }
-    overlay.innerHTML = oldHtml;
-
-    overlay.addEventListener("animationend", () => {
-      overlay.remove();
-      if (typeof onDone === "function") onDone();
-    });
-
-    bookEl.appendChild(overlay);
-  }
-
-  function nextSpread() {
-    if (isAnimating) return;
-    if (index + 2 >= pages.length) return;
-
-    isAnimating = true;
-
-    // Save old right page content to animate
-    const oldRightHtml = rightEl.innerHTML;
-
-    // Move to new spread and render UNDERNEATH the flipping overlay
-    index += 2;
-    renderSpread();
-
-    // Create overlay from old right page that curls away
-    createOverlay("right", oldRightHtml, () => {
-      isAnimating = false;
-    });
-  }
-
-  function prevSpread() {
-    if (isAnimating) return;
-    if (index - 2 < 0) return;
-
-    isAnimating = true;
-
-    // Save old left page content to animate backwards
-    const oldLeftHtml = leftEl.innerHTML;
-
-    // Move to previous spread and render UNDERNEATH
-    index -= 2;
-    renderSpread();
-
-    // Create overlay from old left page that curls back
-    createOverlay("left", oldLeftHtml, () => {
-      isAnimating = false;
-    });
-  }
-
-  // Click zones
-  document.getElementById("hot-right").addEventListener("click", nextSpread);
-  document.getElementById("hot-left").addEventListener("click", prevSpread);
-
-  // Keyboard
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowRight") nextSpread();
-    if (e.key === "ArrowLeft") prevSpread();
-  });
-
-  // (Optional) very simple swipe detection
-  let startX = null;
-  function onPointerDown(e) {
-    startX = e.touches ? e.touches[0].clientX : e.clientX;
-  }
-  function onPointerUp(e) {
-    if (startX == null) return;
-    const x = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
-    const dx = x - startX;
-    if (dx < -40) nextSpread();
-    else if (dx > 40) prevSpread();
-    startX = null;
-  }
-  bookEl.addEventListener("mousedown", onPointerDown);
-  bookEl.addEventListener("mouseup", onPointerUp);
-  bookEl.addEventListener("touchstart", onPointerDown, { passive: true });
-  bookEl.addEventListener("touchend", onPointerUp, { passive: true });
-
-  // Initial render
-  renderSpread();
+  document.getElementById("year").textContent = new Date().getFullYear();
 </script>
-
 </body>
 </html>
