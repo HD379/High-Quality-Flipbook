@@ -2,14 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>10X City — High Quality Flipbook</title>
+<title>10X City — Book Test</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- jQuery must load first -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<!-- Correct high-quality Turn.js build -->
-<script src="https://cdn.jsdelivr.net/gh/blasten/turn.js/turn.min.js"></script>
 
 <style>
 :root {
@@ -18,22 +12,30 @@
   --text: #1e2025;
   --muted: #6b6f77;
   --accent: #c79a52;
-  --shadow-page: 0 18px 40px rgba(0,0,0,0.15);
-  --radius: 12px;
+  --radius: 14px;
+  --shadow-page: 0 18px 40px rgba(0,0,0,0.18);
+}
+
+/* Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  margin: 0;
-  background: var(--bg);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
   overflow: hidden;
 }
 
-#container {
+/* Centered book wrapper */
+.book-shell {
   width: 100vw;
   height: 100vh;
   display: flex;
@@ -41,170 +43,354 @@ body {
   align-items: center;
 }
 
-#book {
-  width: 900px;
+/* Base book size before scaling */
+.book {
+  position: relative;
+  width: 960px;  /* two pages of 480px each */
   height: 600px;
+  perspective: 1600px;
+  transform-origin: center center;
+  transition: transform 0.2s ease-out;
 }
 
-/* Standard page styling */
+.book-inner {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 0;
+}
+
+/* Page styling */
 .page {
-  width: 450px;
+  position: relative;
+  width: 480px;
   height: 600px;
   background: var(--page-bg);
   border-radius: var(--radius);
   box-shadow: var(--shadow-page);
   padding: 2rem 2.2rem;
   overflow: hidden;
-  position: relative;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
 }
 
 .page h2 {
-  font-size: 0.82rem;
+  font-size: 0.83rem;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  letter-spacing: 0.18em;
   color: var(--muted);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4rem;
 }
 
 .page h1 {
   font-size: 1.25rem;
+  font-weight: 500;
   margin-bottom: 0.7rem;
 }
 
 .page p {
-  font-size: 0.95rem;
+  font-size: 0.96rem;
   line-height: 1.7;
-  margin-bottom: 0.7rem;
+  margin-bottom: 0.6rem;
 }
 
 .page-number {
   position: absolute;
   right: 20px;
   bottom: 18px;
-  color: var(--muted);
   font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
-/* Scaling for small screens */
-.scale {
-  transform-origin: center;
+/* Flip animations */
+.page.flip-next {
+  transform-origin: left center;
+  animation: flipNext 0.6s ease forwards;
+}
+
+.page.flip-prev {
+  transform-origin: right center;
+  animation: flipPrev 0.6s ease forwards;
+}
+
+@keyframes flipNext {
+  0%   { transform: rotateY(0deg); }
+  100% { transform: rotateY(-180deg); }
+}
+
+@keyframes flipPrev {
+  0%   { transform: rotateY(0deg); }
+  100% { transform: rotateY(180deg); }
+}
+
+/* Invisible click / swipe zones */
+.hotzone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 22%;
+  z-index: 10;
+  cursor: pointer;
+}
+
+.hotzone-left  { left: 0; }
+.hotzone-right { right: 0; }
+
+/* Hints */
+.hint {
+  position: absolute;
+  bottom: 12px;
+  font-size: 0.78rem;
+  color: var(--muted);
+  user-select: none;
+}
+
+.hint-left  { left: 18px; }
+.hint-right { right: 18px; text-align: right; }
+
+/* Prevent text highlighting during swipe */
+.book, .page {
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Scale down on very small screens */
+@media (max-width: 800px) {
+  .book {
+    transform: scale(0.7);
+  }
+}
+@media (max-width: 650px) {
+  .book {
+    transform: scale(0.55);
+  }
 }
 </style>
 </head>
-
 <body>
 
-<div id="container">
-  <div id="book" class="scale">
-
-    <!-- Page 1 -->
-    <div class="page">
-      <h2>10X City</h2>
-      <h1>High Quality Flipbook Test</h1>
-      <p>This version uses the full Turn.js curl animation. You must open this through a server, not as a file.</p>
-      <div class="page-number">1</div>
+<div class="book-shell">
+  <div class="book" id="book">
+    <div class="book-inner">
+      <div class="page" id="left-page"></div>
+      <div class="page" id="right-page"></div>
     </div>
 
-    <!-- Page 2 -->
-    <div class="page">
-      <h2>Intro</h2>
-      <h1>Page 2</h1>
-      <p>Flip the page by dragging from the corner or clicking the right edge.</p>
-      <div class="page-number">2</div>
-    </div>
+    <!-- Click / swipe areas -->
+    <div class="hotzone hotzone-left" id="hot-left"></div>
+    <div class="hotzone hotzone-right" id="hot-right"></div>
 
-    <!-- Page 3 -->
-    <div class="page">
-      <h2>Test</h2>
-      <h1>Page 3</h1>
-      <p>This should show realistic bending and curling when you flip.</p>
-      <div class="page-number">3</div>
-    </div>
-
-    <!-- Page 4 -->
-    <div class="page">
-      <h2>Test</h2>
-      <h1>Page 4</h1>
-      <p>If this looks smooth, we can load your full 12-page book next.</p>
-      <div class="page-number">4</div>
-    </div>
-
-    <!-- Page 5 -->
-    <div class="page">
-      <h2>Sample</h2>
-      <h1>Page 5</h1>
-      <p>This is another page for flipping tests.</p>
-      <div class="page-number">5</div>
-    </div>
-
-    <!-- Page 6 -->
-    <div class="page">
-      <h2>Sample</h2>
-      <h1>Page 6</h1>
-      <p>The feel should now be much closer to a real printed book.</p>
-      <div class="page-number">6</div>
-    </div>
-
-    <!-- Page 7 -->
-    <div class="page">
-      <h2>Sample</h2>
-      <h1>Page 7</h1>
-      <p>Try dragging just the corner for fine-grained control.</p>
-      <div class="page-number">7</div>
-    </div>
-
-    <!-- Page 8 -->
-    <div class="page">
-      <h2>Sample</h2>
-      <h1>Page 8</h1>
-      <p>You can also click the right or left side of the page.</p>
-      <div class="page-number">8</div>
-    </div>
-
-    <!-- Page 9 -->
-    <div class="page">
-      <h2>End</h2>
-      <h1>Page 9</h1>
-      <p>We’ll replace these with your real content once you confirm the quality.</p>
-      <div class="page-number">9</div>
-    </div>
-
-    <!-- Page 10 -->
-    <div class="page">
-      <h2>End</h2>
-      <h1>Page 10</h1>
-      <p>The animation should feel polished and fluid.</p>
-      <div class="page-number">10</div>
-    </div>
-
+    <div class="hint hint-left">◀ Click or swipe</div>
+    <div class="hint hint-right">Click or swipe ▶</div>
   </div>
 </div>
 
 <script>
-// Initialize high-quality Turn.js book
-$("#book").turn({
-  width: 900,
-  height: 600,
-  autoCenter: true,
-  display: "double",
-  gradients: true,
-  elevation: 60,
-  acceleration: true
-});
+// Simple "book" content model: each object = one page
+const pages = [
+  {
+    kicker: "10X City",
+    title: "Welcome to the Test Book",
+    body: [
+      "This is a self-contained demo. No external libraries. You’re looking at page 1 on the left, and page 2 on the right.",
+      "Click or tap on the right side of the book to turn forward. Click or tap on the left side to go back."
+    ]
+  },
+  {
+    kicker: "Intro",
+    title: "Page 2 · Spread Test",
+    body: [
+      "If everything is working, you should see this page on the right side when you first open the book.",
+      "Now turn the page forward to reveal pages 3 and 4."
+    ]
+  },
+  {
+    kicker: "Test Group",
+    title: "Page 3 · Left Side",
+    body: [
+      "Now you should see page 3 on the left and page 4 on the right.",
+      "We’re mostly checking the feeling of flipping, not the text itself."
+    ]
+  },
+  {
+    kicker: "Test Group",
+    title: "Page 4 · Right Side",
+    body: [
+      "Each forward turn should feel like a single sheet flipping from right to left.",
+      "We can later swap all of this out with your real book content."
+    ]
+  },
+  {
+    kicker: "Middle",
+    title: "Page 5",
+    body: [
+      "This is a mid-book page. The goal is to make sure the animations are consistent no matter where you are in the book."
+    ]
+  },
+  {
+    kicker: "Middle",
+    title: "Page 6",
+    body: [
+      "If the animation feels too slow or too fast, we can adjust the timing in one place in the CSS."
+    ]
+  },
+  {
+    kicker: "Sample",
+    title: "Page 7",
+    body: [
+      "You should be comfortable flipping a few times now. Try going back and forth quickly and see if it feels ok."
+    ]
+  },
+  {
+    kicker: "Sample",
+    title: "Page 8",
+    body: [
+      "On touch screens, you can swipe left or right anywhere inside the book area to turn pages."
+    ]
+  },
+  {
+    kicker: "End Test",
+    title: "Page 9",
+    body: [
+      "We’re approaching the end of the sample sequence. This page just exists to give you another spread to test."
+    ]
+  },
+  {
+    kicker: "End Test",
+    title: "Page 10",
+    body: [
+      "This is the last sample page. Once you’re happy with the motion and layout, we can replace this with your real 10X City content."
+    ]
+  }
+];
 
-// Auto scale for any screen size
-function scaleBook() {
-  const container = document.getElementById("container");
-  const book = document.getElementById("book");
-  const w = 900, h = 600;
-  const sx = container.clientWidth / w;
-  const sy = container.clientHeight / h;
-  const scale = Math.min(sx, sy);
-  book.style.transform = "scale(" + scale + ")";
+// Current left page index (0-based, should always be even: 0, 2, 4, ...)
+let currentLeftIndex = 0;
+
+// Render a single page into a DOM element
+function renderPage(el, index) {
+  el.innerHTML = "";
+  if (index < 0 || index >= pages.length) {
+    // Blank page if out of range (for odd last page)
+    return;
+  }
+
+  const data = pages[index];
+
+  if (data.kicker) {
+    const h2 = document.createElement("h2");
+    h2.textContent = data.kicker;
+    el.appendChild(h2);
+  }
+
+  if (data.title) {
+    const h1 = document.createElement("h1");
+    h1.textContent = data.title;
+    el.appendChild(h1);
+  }
+
+  if (Array.isArray(data.body)) {
+    data.body.forEach(t => {
+      const p = document.createElement("p");
+      p.textContent = t;
+      el.appendChild(p);
+    });
+  }
+
+  const num = document.createElement("div");
+  num.className = "page-number";
+  num.textContent = index + 1;
+  el.appendChild(num);
 }
 
-window.addEventListener("load", scaleBook);
-window.addEventListener("resize", scaleBook);
+// Render the current spread (left + right)
+const leftPageEl = document.getElementById("left-page");
+const rightPageEl = document.getElementById("right-page");
+
+function renderSpread() {
+  if (currentLeftIndex < 0) currentLeftIndex = 0;
+  if (currentLeftIndex >= pages.length) currentLeftIndex = pages.length - (pages.length % 2 === 0 ? 2 : 1);
+
+  if (currentLeftIndex % 2 !== 0) {
+    currentLeftIndex -= 1; // keep it even
+  }
+
+  renderPage(leftPageEl, currentLeftIndex);
+  renderPage(rightPageEl, currentLeftIndex + 1);
+}
+
+// Page turn animations
+let isAnimating = false;
+
+function nextSpread() {
+  if (isAnimating) return;
+  if (currentLeftIndex + 2 >= pages.length) return; // no more pages
+
+  isAnimating = true;
+  rightPageEl.classList.add("flip-next");
+
+  rightPageEl.addEventListener("animationend", function handler() {
+    rightPageEl.removeEventListener("animationend", handler);
+    rightPageEl.classList.remove("flip-next");
+    currentLeftIndex += 2;
+    renderSpread();
+    isAnimating = false;
+  });
+}
+
+function prevSpread() {
+  if (isAnimating) return;
+  if (currentLeftIndex - 2 < 0) return; // already at start
+
+  isAnimating = true;
+  leftPageEl.classList.add("flip-prev");
+
+  leftPageEl.addEventListener("animationend", function handler() {
+    leftPageEl.removeEventListener("animationend", handler);
+    leftPageEl.classList.remove("flip-prev");
+    currentLeftIndex -= 2;
+    renderSpread();
+    isAnimating = false;
+  });
+}
+
+// Click / tap zones
+document.getElementById("hot-right").addEventListener("click", nextSpread);
+document.getElementById("hot-left").addEventListener("click", prevSpread);
+
+// Simple swipe support
+let startX = null;
+
+function onPointerDown(e) {
+  const x = e.touches ? e.touches[0].clientX : e.clientX;
+  startX = x;
+}
+
+function onPointerUp(e) {
+  if (startX === null) return;
+  const x = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+  const dx = x - startX;
+
+  if (dx < -40) {
+    nextSpread(); // swipe left → next
+  } else if (dx > 40) {
+    prevSpread(); // swipe right → prev
+  }
+  startX = null;
+}
+
+const bookEl = document.getElementById("book");
+bookEl.addEventListener("mousedown", onPointerDown);
+bookEl.addEventListener("mouseup", onPointerUp);
+bookEl.addEventListener("touchstart", onPointerDown, { passive: true });
+bookEl.addEventListener("touchend", onPointerUp, { passive: true });
+
+// Initial render
+renderSpread();
 </script>
 
 </body>
