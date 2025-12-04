@@ -1,436 +1,198 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Flipbook Template — Pastel Viewer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8" />
+<title>Working Flipbook Template</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <style>
-    :root {
-      --bg1: #fefaf3;
-      --bg2: #f4f1ec;
-      --bg3: #e8ded3;
-      --page-bg: #ffffff;
-      --text: #1f2228;
-      --muted: #6e727b;
-      --accent: #c78f46;
-      --shadow-page: 0 18px 40px rgba(0, 0, 0, 0.18);
-      --radius-page: 14px;
-    }
+<style>
+  :root {
+    --bg1: #fefaf3;
+    --bg2: #f4f1ec;
+    --bg3: #e8ded3;
+    --page-bg: #ffffff;
+    --text: #1f2228;
+    --muted: #6e727b;
+    --shadow-page: 0 18px 40px rgba(0,0,0,0.2);
+    --radius-page: 14px;
+  }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top left, var(--bg1) 0, var(--bg2) 50%, var(--bg3) 100%);
-      color: var(--text);
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-    }
+  body {
+    font-family: system-ui, sans-serif;
+    background: radial-gradient(circle at top left, var(--bg1), var(--bg2), var(--bg3));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+  }
 
-    .book-shell {
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+  .book {
+    position: relative;
+    width: 900px;
+    height: 600px;
+    display: flex;
+    perspective: 2000px;
+  }
 
-    .book {
-      position: relative;
-      width: 960px;  /* 2 x 480 */
-      height: 600px;
-      perspective: 1600px;
-      transform-origin: center center;
-    }
+  .page {
+    width: 50%;
+    height: 100%;
+    background: var(--page-bg);
+    border-radius: var(--radius-page);
+    box-shadow: var(--shadow-page);
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    transform-style: preserve-3d;
+  }
 
-    .book-inner {
-      width: 100%;
-      height: 100%;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0;
-    }
+  .page h1 { font-size: 1.3rem; margin-bottom: 1rem; }
+  .page p { font-size: 1rem; line-height: 1.6; margin-bottom: 0.5rem; }
+  .num {
+    position: absolute;
+    bottom: 18px;
+    right: 20px;
+    font-size: .8rem;
+    color: var(--muted);
+  }
 
-    .page-wrapper {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      perspective: 1600px;
-      overflow: visible;
-    }
+  /* Flip animations */
+  .flip-right {
+    transform-origin: left center;
+    animation: flipRight 0.65s ease forwards;
+  }
+  .flip-left {
+    transform-origin: right center;
+    animation: flipLeft 0.65s ease forwards;
+  }
 
-    .page {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      background: var(--page-bg);
-      border-radius: var(--radius-page);
-      box-shadow: var(--shadow-page);
-      padding: 2rem 2.2rem;
-      overflow: hidden;
-      transform-style: preserve-3d;
-      backface-visibility: hidden;
-    }
+  @keyframes flipRight {
+    0% { transform: rotateY(0deg); }
+    100% { transform: rotateY(-180deg); }
+  }
+  @keyframes flipLeft {
+    0% { transform: rotateY(0deg); }
+    100% { transform: rotateY(180deg); }
+  }
 
-    .page::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background: linear-gradient(to right, rgba(0,0,0,0.08), transparent 20%, transparent 80%, rgba(0,0,0,0.04));
-      opacity: 0.18;
-      mix-blend-mode: multiply;
-    }
+  /* Hotzones */
+  .hot {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 20%;
+    cursor: pointer;
+    z-index: 10;
+  }
+  #hot-left { left: 0; }
+  #hot-right { right: 0; }
 
-    .page h2 {
-      font-size: 0.83rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 0.4rem;
-    }
-
-    .page h1 {
-      font-size: 1.25rem;
-      font-weight: 500;
-      margin-bottom: 0.7rem;
-    }
-
-    .page p {
-      font-size: 0.96rem;
-      line-height: 1.7;
-      margin-bottom: 0.6rem;
-    }
-
-    .page-number {
-      position: absolute;
-      right: 20px;
-      bottom: 18px;
-      font-size: 0.8rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    /* Flip animations – improved “booky” look */
-    .page-right.flip-next {
-      transform-origin: left center;
-      animation: flipNext 0.75s cubic-bezier(0.2, 0.7, 0.25, 1) forwards;
-    }
-
-    .page-left.flip-prev {
-      transform-origin: right center;
-      animation: flipPrev 0.75s cubic-bezier(0.2, 0.7, 0.25, 1) forwards;
-    }
-
-    @keyframes flipNext {
-      0% {
-        transform: rotateY(0deg);
-        box-shadow: 0 18px 40px rgba(0,0,0,0.18);
-      }
-      35% {
-        transform: rotateY(-110deg) translateX(-6px);
-        box-shadow: 0 26px 60px rgba(0,0,0,0.35);
-      }
-      70% {
-        transform: rotateY(-185deg) translateX(-8px);
-        box-shadow: 0 16px 35px rgba(0,0,0,0.22);
-      }
-      100% {
-        transform: rotateY(-180deg);
-        box-shadow: 0 0 0 rgba(0,0,0,0);
-      }
-    }
-
-    @keyframes flipPrev {
-      0% {
-        transform: rotateY(0deg);
-        box-shadow: 0 18px 40px rgba(0,0,0,0.18);
-      }
-      35% {
-        transform: rotateY(110deg) translateX(6px);
-        box-shadow: 0 26px 60px rgba(0,0,0,0.35);
-      }
-      70% {
-        transform: rotateY(185deg) translateX(8px);
-        box-shadow: 0 16px 35px rgba(0,0,0,0.22);
-      }
-      100% {
-        transform: rotateY(180deg);
-        box-shadow: 0 0 0 rgba(0,0,0,0);
-      }
-    }
-
-    /* Click / swipe zones */
-    .hotzone {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 22%;
-      z-index: 10;
-      cursor: pointer;
-    }
-
-    .hotzone.left { left: 0; }
-    .hotzone.right { right: 0; }
-
-    .hint {
-      position: absolute;
-      bottom: 10px;
-      font-size: 0.78rem;
-      color: var(--muted);
-      user-select: none;
-      pointer-events: none;
-    }
-
-    .hint.left { left: 16px; }
-    .hint.right { right: 16px; text-align: right; }
-
-    .book, .page {
-      user-select: none;
-    }
-
-    /* Responsive scaling if you resize window */
-    @media (max-width: 1000px) {
-      .book {
-        transform: scale(0.85);
-      }
-    }
-    @media (max-width: 850px) {
-      .book {
-        transform: scale(0.7);
-      }
-    }
-    @media (max-width: 700px) {
-      .book {
-        transform: scale(0.6);
-      }
-    }
-    @media (max-width: 600px) {
-      .book {
-        transform: scale(0.5);
-      }
-    }
-  </style>
+  .hint {
+    position: absolute;
+    bottom: 10px;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .hint-left { left: 15px; }
+  .hint-right { right: 15px; }
+</style>
 </head>
 <body>
-  <div class="book-shell">
-    <div class="book" id="book">
-      <div class="book-inner">
-        <div class="page-wrapper">
-          <div class="page page-left" id="left-page"></div>
-        </div>
-        <div class="page-wrapper">
-          <div class="page page-right" id="right-page"></div>
-        </div>
-      </div>
 
-      <div class="hotzone left" id="hot-left"></div>
-      <div class="hotzone right" id="hot-right"></div>
-      <div class="hint left">◀ Click / swipe</div>
-      <div class="hint right">Click / swipe ▶</div>
-    </div>
-  </div>
+<div class="book">
+  <div class="page" id="left"></div>
+  <div class="page" id="right"></div>
 
-  <script>
-    // Simple page data: replace these with your real pages later.
-    const pages = [
-      {
-        kicker: "10X City",
-        title: "Flipbook Template · Page 1",
-        body: [
-          "This is a self-contained flipbook template. No external libraries. You should see page 1 on the left and page 2 on the right.",
-          "Click or tap the right side of the book to turn forward. Click or tap the left side to go back."
-        ]
-      },
-      {
-        kicker: "Intro",
-        title: "Page 2 · Right Side",
-        body: [
-          "This is page 2. The layout is a two-page spread in the center of a pastel background.",
-          "Now turn the page forward to reveal pages 3 and 4."
-        ]
-      },
-      {
-        kicker: "Spread",
-        title: "Page 3 · Left",
-        body: [
-          "If everything is working, this page should now be on the left, with page 4 on the right.",
-          "The flip should look smoother and more 'book-like' than a flat rotation."
-        ]
-      },
-      {
-        kicker: "Spread",
-        title: "Page 4 · Right",
-        body: [
-          "You can go forward and backward several times to feel the animation.",
-          "Later, these sample texts will be replaced with your real book content."
-        ]
-      },
-      {
-        kicker: "Middle",
-        title: "Page 5",
-        body: [
-          "This is page 5. We’re just giving the flipbook a few spreads to test things properly."
-        ]
-      },
-      {
-        kicker: "Middle",
-        title: "Page 6",
-        body: [
-          "If you’d like, we can adjust timing and even add different animations for fast vs slow flips."
-        ]
-      },
-      {
-        kicker: "Sample",
-        title: "Page 7",
-        body: [
-          "Keyboard shortcuts: you can also use the left and right arrow keys to move between spreads."
-        ]
-      },
-      {
-        kicker: "Sample",
-        title: "Page 8",
-        body: [
-          "On touch devices, swipe left or right anywhere over the book to turn pages."
-        ]
-      },
-      {
-        kicker: "Closing",
-        title: "Page 9",
-        body: [
-          "This is the second-to-last page of the sample sequence."
-        ]
-      },
-      {
-        kicker: "Closing",
-        title: "Page 10",
-        body: [
-          "Once you're happy with how this feels, we’ll replace everything with your actual 10X City book pages."
-        ]
-      }
-    ];
+  <div class="hot" id="hot-left"></div>
+  <div class="hot" id="hot-right"></div>
 
-    let currentLeftIndex = 0; // always even: 0, 2, 4, ...
+  <div class="hint hint-left">◀ Click</div>
+  <div class="hint hint-right">Click ▶</div>
+</div>
 
-    const leftPageEl = document.getElementById("left-page");
-    const rightPageEl = document.getElementById("right-page");
+<script>
+const pages = [
+  { title: "Page 1", body: ["This is page one.", "Click right to flip."] },
+  { title: "Page 2", body: ["This is page two.", "Click right again."] },
+  { title: "Page 3", body: ["Now on page three.", "Click left to go back."] },
+  { title: "Page 4", body: ["Page four.", "You can add more pages."] },
+  { title: "Page 5", body: ["This system works on GitHub Pages.", "Fully reliable."] },
+  { title: "Page 6", body: ["Once confirmed, we style it like FlipHTML5."] }
+];
 
-    function renderPage(el, index) {
-      el.innerHTML = "";
-      if (index < 0 || index >= pages.length) return;
+let index = 0;
 
-      const data = pages[index];
+function render() {
+  const left = document.getElementById("left");
+  const right = document.getElementById("right");
 
-      if (data.kicker) {
-        const h2 = document.createElement("h2");
-        h2.textContent = data.kicker;
-        el.appendChild(h2);
-      }
+  function fill(pageEl, data, num) {
+    pageEl.innerHTML = "";
+    if (!data) return;
 
-      if (data.title) {
-        const h1 = document.createElement("h1");
-        h1.textContent = data.title;
-        el.appendChild(h1);
-      }
+    const h1 = document.createElement("h1");
+    h1.textContent = data.title;
+    pageEl.appendChild(h1);
 
-      if (Array.isArray(data.body)) {
-        data.body.forEach(text => {
-          const p = document.createElement("p");
-          p.textContent = text;
-          el.appendChild(p);
-        });
-      }
-
-      const num = document.createElement("div");
-      num.className = "page-number";
-      num.textContent = index + 1;
-      el.appendChild(num);
-    }
-
-    function renderSpread() {
-      if (currentLeftIndex < 0) currentLeftIndex = 0;
-      if (currentLeftIndex >= pages.length) {
-        currentLeftIndex = pages.length - (pages.length % 2 === 0 ? 2 : 1);
-      }
-      if (currentLeftIndex % 2 !== 0) currentLeftIndex -= 1;
-
-      renderPage(leftPageEl, currentLeftIndex);
-      renderPage(rightPageEl, currentLeftIndex + 1);
-    }
-
-    let isAnimating = false;
-
-    function nextSpread() {
-      if (isAnimating) return;
-      if (currentLeftIndex + 2 >= pages.length) return;
-      isAnimating = true;
-
-      rightPageEl.classList.add("flip-next");
-
-      rightPageEl.addEventListener("animationend", function handler() {
-        rightPageEl.removeEventListener("animationend", handler);
-        rightPageEl.classList.remove("flip-next");
-        currentLeftIndex += 2;
-        renderSpread();
-        isAnimating = false;
-      });
-    }
-
-    function prevSpread() {
-      if (isAnimating) return;
-      if (currentLeftIndex - 2 < 0) return;
-      isAnimating = true;
-
-      leftPageEl.classList.add("flip-prev");
-
-      leftPageEl.addEventListener("animationend", function handler() {
-        leftPageEl.removeEventListener("animationend", handler);
-        leftPageEl.classList.remove("flip-prev");
-        currentLeftIndex -= 2;
-        renderSpread();
-        isAnimating = false;
-      });
-    }
-
-    document.getElementById("hot-right").addEventListener("click", nextSpread);
-    document.getElementById("hot-left").addEventListener("click", prevSpread);
-
-    // Keyboard arrows
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowRight") nextSpread();
-      if (e.key === "ArrowLeft") prevSpread();
+    data.body.forEach(t => {
+      const p = document.createElement("p");
+      p.textContent = t;
+      pageEl.appendChild(p);
     });
 
-    // Swipe
-    let startX = null;
-    function onPointerDown(e) {
-      startX = e.touches ? e.touches[0].clientX : e.clientX;
-    }
-    function onPointerUp(e) {
-      if (startX == null) return;
-      const x = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
-      const dx = x - startX;
-      if (dx < -40) nextSpread();
-      else if (dx > 40) prevSpread();
-      startX = null;
-    }
-    const bookEl = document.getElementById("book");
-    bookEl.addEventListener("mousedown", onPointerDown);
-    bookEl.addEventListener("mouseup", onPointerUp);
-    bookEl.addEventListener("touchstart", onPointerDown, { passive: true });
-    bookEl.addEventListener("touchend", onPointerUp, { passive: true });
+    const n = document.createElement("div");
+    n.className = "num";
+    n.textContent = num;
+    pageEl.appendChild(n);
+  }
 
-    // Initial render
-    renderSpread();
-  </script>
+  fill(left, pages[index], index + 1);
+  fill(right, pages[index + 1], index + 2);
+}
+
+function next() {
+  if (index + 2 >= pages.length) return;
+
+  const right = document.getElementById("right");
+  right.classList.add("flip-right");
+
+  right.addEventListener("animationend", function end() {
+    right.removeEventListener("animationend", end);
+    right.classList.remove("flip-right");
+
+    index += 2;
+    render();
+  });
+}
+
+function prev() {
+  if (index - 2 < 0) return;
+
+  const left = document.getElementById("left");
+  left.classList.add("flip-left");
+
+  left.addEventListener("animationend", function end() {
+    left.removeEventListener("animationend", end);
+    left.classList.remove("flip-left");
+
+    index -= 2;
+    render();
+  });
+}
+
+document.getElementById("hot-right").onclick = next;
+document.getElementById("hot-left").onclick = prev;
+
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight") next();
+  if (e.key === "ArrowLeft") prev();
+});
+
+render();
+</script>
+
 </body>
 </html>
